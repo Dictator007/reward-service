@@ -6,6 +6,7 @@ import com.ust.rewards.calculator.RewardCalculator;
 import com.ust.rewards.calculator.RewardCalculatorFactory;
 import com.ust.rewards.dto.RewardPointsResponse;
 import com.ust.rewards.exception.RewardsServiceException;
+import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Log
 public class RewardsService {
 
     private final RewardAdapterFactory adapterFactory;
@@ -23,9 +25,10 @@ public class RewardsService {
         this.calculatorFactory = calculatorFactory;
     }
 
-    @SuppressWarnings("unchecked") // Safe because factories control types
+    @SuppressWarnings("unchecked")
     public RewardPointsResponse calculateRewards(String customerId, List<String> categories) throws RewardsServiceException{
         if (categories == null || categories.isEmpty()) {
+            log.info("Category Is Null Or Empty");
             categories = adapterFactory.getAllCategories();
         }
 
@@ -33,17 +36,14 @@ public class RewardsService {
         Map<String, Integer> categoryPoints = new HashMap<>();
 
         for (String category : categories) {
-
             // Get the adapter and calculator for the category
             RewardAdapter<?> adapter = adapterFactory.getAdapter(category);
             RewardCalculator<?> calculator = calculatorFactory.getCalculator(category);
-
             // Delegate to generic helper to calculate points
             // Safe cast to raw types for generic helper
             int points = processCategory((RewardAdapter) adapter, (RewardCalculator) calculator, customerId);
-
-
             categoryPoints.put(category, points);
+            log.info("Category with points : " + category + " = " + points);
             totalPoints += points;
         }
 
