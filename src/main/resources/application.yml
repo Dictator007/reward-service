@@ -1,0 +1,120 @@
+spring:
+  application:
+    name: rewards-api
+server:
+  port: 8080
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      hotelService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 3
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        eventConsumerBufferSize: 10
+        recordExceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - com.example.rewards.exception.RewardsServiceException
+        ignoreExceptions:
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+
+      restaurantService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 3
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        eventConsumerBufferSize: 10
+        recordExceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - com.example.rewards.exception.RewardsServiceException
+        ignoreExceptions:
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+
+      casinoService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 3
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        eventConsumerBufferSize: 10
+        recordExceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - com.example.rewards.exception.RewardsServiceException
+        ignoreExceptions:
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+
+  retry:
+    instances:
+      hotelService:
+        maxAttempts: 3
+        waitDuration: 2s
+        exponentialBackoffMultiplier: 2.0
+        retryExceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - com.example.rewards.exception.RewardsServiceException
+
+      restaurantService:
+        maxAttempts: 3
+        waitDuration: 2s
+        exponentialBackoffMultiplier: 2.0
+        retryExceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - com.example.rewards.exception.RewardsServiceException
+
+      casinoService:
+        maxAttempts: 3
+        waitDuration: 2s
+        exponentialBackoffMultiplier: 2.0
+        retryExceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - com.example.rewards.exception.RewardsServiceException
+
+  timelimiter:
+    instances:
+      hotelService:
+        timeoutDuration: 5s
+
+      restaurantService:
+        timeoutDuration: 5s
+
+      casinoService:
+        timeoutDuration: 5s
+
+hotel:
+  url:
+    hotel: https://dummy-hotel-service.com/api/transactions
+
+casino:
+  url:
+    casino: https://dummy-casino-service.com/api/transactions
+
+restaurant:
+  url:
+    restaurant: https://dummy-restaurant-service.com/api/transactions
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, httptrace, env, loggers
+  endpoint:
+    health:
+      show-details: always
+  info:
+    app:
+      name: Rewards API
+      version: 1.0
+      description: A service to calculate customer reward points
